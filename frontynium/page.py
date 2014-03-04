@@ -48,3 +48,12 @@ class Page(object):
     @objects.setter
     def objects(self, value):
         self._objects = value
+
+def gettable():
+    pass
+
+def settable():
+    pass
+
+def clickable():
+    pass
