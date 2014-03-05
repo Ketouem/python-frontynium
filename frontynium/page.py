@@ -6,9 +6,8 @@ from types import FunctionType
 class Page(object):
 
     def __init__(self, root_node):
-        """Default constructor
-
-        root_node -- instance of selenium's webdriver or webelement
+        """
+        :param root_node: selenium.WebDriver used in the tests
         """
         self._root_node = root_node
         self._finder = Finder(self._root_node)
@@ -34,6 +33,11 @@ class Page(object):
         return element
 
     def click_on(self, object_name, *args, **kwargs):
+        """Click on a visual element
+
+        :param object_name: string, name of the mapping in the _objects dictionary
+        :returns : Page, the current instance of Page, allows chaining
+        """
         element = self._find_objects(object_name, *args, **kwargs)
         element.click()
         return self
