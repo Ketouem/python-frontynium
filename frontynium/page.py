@@ -23,12 +23,12 @@ class Page(object):
             raise TypeError("This class is not meant to be instantiated directly but subclassed")
         return object.__new__(cls, *args, **kwargs)
 
-    def _find_objects(self, object_name, *args, **kwargs):
+    def _find_objects(self, object_name, single_element=False, *args, **kwargs):
         element = None
         try:
             mapping = self._objects[object_name].build()
             if type(mapping) == FunctionType:
-                element = mapping(*args, **kwargs)
+                element = mapping(single_element, *args, **kwargs)
         except KeyError:
             raise ObjectMappingNotFound("Object {0} has not been found in the objects dictionary.".format(object_name))
         return element
@@ -36,6 +36,14 @@ class Page(object):
     def click_on(self, object_name, *args, **kwargs):
         element = self._find_objects(object_name, *args, **kwargs)
         element.click()
+        return self
+
+    def set_field(self, object_name, value, clear_before_use=False, *args, **kwargs):
+        element = self._find_objects(object_name, *args, **kwargs)
+        if clear_before_use:
+            element.clear()
+        element.send_keys(value)
+        return self
 
     @property
     def root_node(self):
@@ -49,11 +57,28 @@ class Page(object):
     def objects(self, value):
         self._objects = value
 
-def gettable():
-    pass
 
-def settable():
-    pass
+#Page decorators
 
-def clickable():
-    pass
+
+def gettable(*args):
+    def wrapper(wrapped_class):
+        if not isinstance(wrapped_class, Page):
+            raise ValueError("The gettable decorator must be use on a Page class only.")
+        for arg in args:
+            getter = lambda current_instance: current_instance._find_objects(arg)
+            setattr(wrapped_class, 'get_' + arg, getter)
+        return wrapped_class
+    return wrapper
+
+
+def settable(*args):
+    def wrapper(wrapped_class):
+        if not isinstance(wrapped_class, Page):
+            raise ValueError("The settable decorator must be use on a Page class only.")
+        for arg in args:
+            def setter(current_instance, value, clear=False, *opts, **kopts):
+                return current_instance.set_field(arg, value, clear, *opts, **kopts)
+            setattr(wrapped_class, 'set_' + arg, setter)
+        return wrapped_class
+    return wrapper
