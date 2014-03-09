@@ -75,7 +75,9 @@ def settable(*args):
     def inner(cls):
         for arg in args:
             def setter(cls, value, clear_before_use=False, *sargs, **skwargs):
-                obj = cls.detect_objects(arg, *sargs, **skwargs)[0]
+                obj = cls.detect_objects(arg, *sargs, **skwargs)
+                if type(obj) == list:
+                    obj = obj[0]
                 if clear_before_use:
                     obj.clear()
                 obj.send_keys(value)
