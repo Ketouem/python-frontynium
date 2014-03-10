@@ -3,13 +3,13 @@ class Finder:
     def __init__(self, root_node):
         self._root_node = root_node
 
-    def by_xpath(self, expression, single_element, *args, **kwargs):
+    def by_xpath(self, expression, single_element=True, *args, **kwargs):
         return ExpressionBuilder(self, 'by_xpath', expression, single_element, *args, **kwargs)
 
-    def by_css(self, expression, single_element, *args, **kwargs):
+    def by_css(self, expression, single_element=True, *args, **kwargs):
         return ExpressionBuilder(self, 'by_css', expression, single_element, *args, **kwargs)
 
-    def by_id(self, expression, single_element, *args, **kwargs):
+    def by_id(self, expression, single_element=True, *args, **kwargs):
         return ExpressionBuilder(self, 'by_id', expression, single_element, *args, **kwargs)
 
     @property

@@ -4,7 +4,29 @@ from types import FunctionType
 
 
 class Page(object):
+    """Implementation of the PageObject Pattern (https://code.google.com/p/selenium/wiki/PageObjects)
 
+    This class provides tools that are useful to manipulate a web UI using selenium. This class is not meant
+    to be used directly but being subclassed.
+
+    Ex:
+
+    class MyAwesomePage(Page):
+
+        def __init___(self, webdriver):
+            Page.__init__(self, webdriver)
+
+            #In this dictionary we will put all the mapping for the controls, eg a sample name and the detection
+            #mean.
+            self._mapped_objects = {
+                'input': self._finder.by_css("input#test-123")
+                'validate_button': self._finder.by_css("div.button")
+            }
+
+        def search_data(self, value):
+
+
+    """
     def __init__(self, root_node):
         """Default constructor
 
@@ -12,12 +34,12 @@ class Page(object):
         """
         self._root_node = root_node
         self._finder = Finder(self._root_node)
-        self._objects = {}
-        for obj in self._objects:
+        self._mapped_objects = {}
+        for obj in self._mapped_objects:
             if not isinstance(obj, ExpressionBuilder):
                 raise InvalidObjectMapping("You must use the methods available in the finder.")
 
-    #Preventing a var = Page(webdriver) in a test code as _objects needs to be defined correctly
+    #Preventing a var = Page(webdriver) in a test code as _mapped_objects needs to be defined correctly
     def __new__(cls, *args, **kwargs):
         if cls is Page:
             raise TypeError("This class is not meant to be instantiated directly but subclassed.")
@@ -31,7 +53,7 @@ class Page(object):
         """
         element = None
         try:
-            mapping = self._objects[object_name].build()
+            mapping = self._mapped_objects[object_name].build()
             if type(mapping) == FunctionType:
                 element = mapping(*args, **kwargs)
         except KeyError:
@@ -48,17 +70,33 @@ class Page(object):
         element.click()
         return self
 
+    def set_value_into(self, object_name, value, clear_before_use=False, *args, **kwargs):
+        """Set a value into a mapped field
+
+        :param object_name: the name of the mapping as defined in self._objects
+        :param value: the string that will be input into the control
+        :param clear_before_use: empty the field before use
+        :returns the current instance of Page
+        """
+        element = self.detect_objects(object_name, *args, **kwargs)
+        if type(element) == list:
+            element = element[0]
+        if clear_before_use:
+            element.clear()
+        element.send_keys(value)
+        return self
+
     @property
     def root_node(self):
         return self._root_node
 
     @property
     def objects(self):
-        return self._objects
+        return self._mapped_objects
 
     @objects.setter
     def objects(self, value):
-        self._objects = value
+        self._mapped_objects = value
 
 
 def gettable(*args):
