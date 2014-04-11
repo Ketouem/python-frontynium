@@ -100,6 +100,10 @@ class Page(object):
 
 
 def gettable(*args):
+    """Decorator that allows the creation of getter functions to expose the WebElement(s)
+
+    :param *args: str, each str being the name of a mapping inside Page._mapped_objects
+    """
     def inner(cls):
         for arg in args:
             def getter(cls, *sargs, **skwargs):
@@ -124,5 +128,12 @@ def settable(*args):
         return cls
     return inner
 
-def clickable():
-    pass
+def clickable(*args):
+    def inner(cls):
+        for arg in args:
+            def clicker(cls):
+                cls.click_on(arg)
+                return cls
+            setattr(cls, 'click_on_' + arg, clicker)
+        return cls
+    return inner
