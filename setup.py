@@ -4,10 +4,10 @@ setup(
     name='python-frontynium',
     version='0.1.0',
     author='Cyril Thomas',
-    author_email='ketouem@example.com',
+    author_email='ketouem@gmail.com',
     packages=['frontynium'],
     license='LICENSE',
-    description='Useful towel-related stuff.',
+    description='Implementation of the PageObject paradigm to use with selenium-webdriver.',
     long_description=open('README.md').read(),
     install_requires=["selenium"],
 )
